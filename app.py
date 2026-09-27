@@ -160,14 +160,14 @@ with st.container(border=True):
     )
 
 tab_chutes, tab_passes, tab_estatisticas, tab_eventos = st.tabs(
-    ["⚽ Chutes", "🎯 Passes", "📊 Estatísticas", "📋 Eventos selecionados"]
+    ["⚽ Chutes", "🎯 Passes", "📊 Estatísticas", "📋 Eventos filtrados"]
 )
 
 with tab_chutes:
     st.pyplot(fig_chutes)
 
 with tab_passes:
-    st.subheader(jogador_selecionado)
+    st.markdown(f"## Jogador: {jogador_selecionado}")
     st.pyplot(fig_passes)
 
 with tab_estatisticas:    
@@ -313,6 +313,7 @@ if (
     )
 
 with st.sidebar.form("form_eventos"):
+    st.write("Filtro de eventos")
     intervalo_minutos = st.slider(
         label="Intervalo de minutos",
         min_value=slider_min,
@@ -347,7 +348,7 @@ eventos_filtrados = eventos[
 with tab_eventos:
     
     st.subheader("Eventos selecionados da partida")
-    st.write(f"Intervalo selecionado: {intervalo_minutos[0]} - {intervalo_minutos[1]}")
+    st.write(f"Intervalo selecionado: {intervalo_aplicado[0]} - {intervalo_aplicado[1]}")
         
     st.dataframe(
         eventos_filtrados.head(quantidade_aplicada),

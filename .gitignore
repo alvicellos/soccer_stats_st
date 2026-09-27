@@ -1,2 +1,4 @@
 .venv
 src/explorar_statsbompy.ipynb
+src/__pycache__
+app2.py

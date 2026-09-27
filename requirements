@@ -85,7 +85,6 @@ mdurl==0.1.2
 MetaTrader5==5.0.4200
 mistune==3.3.4
 more-itertools==11.1.0
-mplsoccer==1.8.1
 mpmath==1.3.0
 murmurhash==1.0.10
 narwhals==2.24.0

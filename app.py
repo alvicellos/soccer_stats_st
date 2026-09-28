@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime
 
 from src.dados import (
     carregar_competicoes,

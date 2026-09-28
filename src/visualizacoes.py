@@ -1,31 +1,81 @@
 from mplsoccer import Pitch
 import matplotlib.pyplot as plt
 import seaborn as sns
+from datetime import datetime
+import pandas as pd
 
 def criar_mapa_chutes(chutes):
-    chutes = chutes.copy()    
-    gols = chutes[chutes['shot_outcome'] == 'Goal']
-    no_gols = chutes[chutes['shot_outcome'] != 'Goal']    
+    chutes = chutes.copy()
+    chutes['momento'] = pd.to_datetime(chutes['timestamp'], format='%H:%M:%S.%f')
+    min_45= datetime(year=1900, month=1, day=1, hour=0, minute=45)
+    
+    times = chutes['team'].unique()
+    time_a = times[0]
+    time_b = times[1]
+    
+    # Chute time A
+    chutes_time_a = chutes[chutes['team'] == time_a]
+    # Inversão das coordenadas no segundo tempo
+    chutes_time_a_2t = chutes_time_a[(chutes_time_a['minute'] > 45) & (chutes_time_a['momento'] < min_45)].index
+    
+    chutes_time_a.loc[chutes_time_a_2t, 'x'] = 120 - chutes_time_a.loc[chutes_time_a_2t, 'x']
+    chutes_time_a.loc[chutes_time_a_2t, 'y'] = 80 - chutes_time_a.loc[chutes_time_a_2t, 'y']
+    
+    gols_time_a = chutes_time_a[chutes_time_a['shot_outcome'] == 'Goal']
+    no_gols_time_a = chutes_time_a[chutes_time_a['shot_outcome'] != 'Goal']
+    
+    #Chutes time B
+    chutes_time_b = chutes[chutes['team'] == time_b]
+    # Inversão do lado do campo no primeiro tempo
+    chutes_time_b_1t = chutes_time_b[((chutes_time_b['minute'] < 45) & (chutes_time_b['momento'] < min_45)) | ((chutes_time_b['minute'] > 45) & (chutes_time_b['momento'] > min_45))].index
+    
+    chutes_time_b.loc[chutes_time_b_1t, 'x'] = 120 - chutes_time_b.loc[chutes_time_b_1t, 'x']    
+    chutes_time_b.loc[chutes_time_b_1t, 'y'] = 80 - chutes_time_b.loc[chutes_time_b_1t, 'y']
+
+    gols_time_b = chutes_time_b[chutes_time_b['shot_outcome'] == 'Goal']
+    no_gols_time_b = chutes_time_b[chutes_time_b['shot_outcome'] != 'Goal']
+    
     pitch = Pitch(pitch_type="statsbomb")
     fig, ax = pitch.draw()
 
     pitch.scatter(
-        gols['x'],
-        gols['y'],
+        gols_time_a['x'],
+        gols_time_a['y'],
         ax=ax,
         marker="*",
         s=150,
-        label="Gol"
+        color = "darkblue",
+        label=f"Gol - {time_a}"
     )
     
     pitch.scatter(
-    no_gols['x'],
-    no_gols['y'],
-    ax=ax,
-    marker="o",
-    label="Não foi gol"
+        no_gols_time_a['x'],
+        no_gols_time_a['y'],
+        ax=ax,
+        marker="o",
+        color = "royalblue",
+        label=f"Não foi gol - {time_a}"
     )
     
+    pitch.scatter(
+        gols_time_b['x'],
+        gols_time_b['y'],
+        ax=ax,
+        marker="*",
+        s=150,
+        color = "darkgreen",
+        label=f"Gol - {time_b}"
+        )
+        
+    pitch.scatter(
+        no_gols_time_b['x'],
+        no_gols_time_b['y'],
+        ax=ax,
+        marker="o",
+        color = "limegreen",
+        label=f"Não foi gol - {time_b}"
+        )
+        
     ax.legend()
     return fig
 

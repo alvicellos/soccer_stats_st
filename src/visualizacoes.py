@@ -113,6 +113,45 @@ def criar_mapa_passes(passes, jogador):
     
     return fig
 
+def criar_mapa_passes_tempos(passes, jogador):
+    '''Função criada para verificar a necessidade de inverter as coordenadas dos passes como foi feito nas coordenadas dos chutes'''
+    passes_jogador = passes[passes['player'] == jogador]
+    
+    min_45= datetime(year=1900, month=1, day=1, hour=0, minute=45)   
+    primeiro_tempo = passes_jogador[(passes_jogador['minute'] > 45) & (passes_jogador['momento'] < min_45)].index
+    segundo_tempo = passes_jogador[((passes_jogador['minute'] < 45) & (passes_jogador['momento'] < min_45)) | ((passes_jogador['minute'] > 45) & (passes_jogador['momento'] > min_45))].index
+    
+    passes_jogador.loc[primeiro_tempo, "tempo"] = "1º tempo"
+    passes_jogador.loc[segundo_tempo, "tempo"] = "2º tempo"
+    
+    pitch = Pitch(pitch_type="statsbomb")
+    fig, ax = pitch.draw()
+
+    pitch.arrows(
+        passes_jogador['x'],  
+        passes_jogador['y'], 
+        passes_jogador['end_x'],
+        passes_jogador['end_y'],
+        ax=ax,
+        color="green",
+        label="1º tempo"
+    )
+    
+    pitch.arrows(
+        passes_jogador['x'],  
+        passes_jogador['y'], 
+        passes_jogador['end_x'],
+        passes_jogador['end_y'],
+        ax=ax,
+        color="red",
+        label="2º tempo"
+        )
+    
+    ax.set_title("Mapa de passes")
+    ax.legend()
+    
+    return fig
+
 
 def criar_grafico_eventos(eventos):
 

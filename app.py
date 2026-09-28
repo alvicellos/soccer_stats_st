@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+import time
 
 from src.dados import (
     carregar_competicoes,
@@ -33,17 +34,13 @@ st.title("⚽ Estatísticas de Futebol")
 # 2. SELEÇÃO DE COMPETIÇÃO E TEMPORADA
 # =========================================================
 
-with st.spinner("Carregando competições da partida..."):
+with st.spinner():
     competicoes = carregar_competicoes()
         
 nomes_competicoes =  competicoes['competition_name'].unique()
-
 competicao_selecionada = st.sidebar.selectbox("Competição", nomes_competicoes)
-
 temporadas_disponiveis = competicoes[competicoes['competition_name'] == competicao_selecionada]['season_name'].unique()
-
 temporada_selecionada = st.sidebar.selectbox("Temporada", temporadas_disponiveis)
-
 selecao = competicoes[
     (competicoes['competition_name'] == competicao_selecionada) &
     (competicoes['season_name'] == temporada_selecionada)
@@ -81,8 +78,19 @@ id_partida = partidas[partidas['rotulo'] == partida_selecionada].iloc[0]['match_
 # 4. CARREGAMENTO E TRATAMENTO DOS EVENTOS
 # =========================================================
 
-with st.spinner("Carregando eventos da partida..."):
-    eventos = carregar_eventos(id_partida)
+if 'eventos_carregados' not in st.session_state:
+    st.session_state.eventos_carregados = False
+
+if st.session_state.eventos_carregados == False:
+    # Tirar a barra depois que carregar
+    barra_progresso = st.progress(0.2, "Carregando eventos da partida", 100) 
+    # Loop para atualizar o progresso dinamicamente
+    for i in range(0, 101, 5): 
+        time.sleep(0.1) 
+        barra_progresso.progress(i, f"Carregando eventos da partida {i}%...", 100)
+    st.session_state.eventos_carregados = True
+    
+eventos = carregar_eventos(id_partida)
 
 passes = filtrar_passes(eventos)
 passes = preparar_passes(passes)
@@ -283,6 +291,7 @@ with tab_estatisticas:
 
 st.divider()
 st.subheader("Todos os Eventos da partida")        
+
 st.dataframe(eventos)
 
 st.subheader("Eventos mais frequentes da partida")

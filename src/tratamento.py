@@ -9,9 +9,7 @@ def filtrar_chutes(eventos):
 def preparar_chutes(chutes):    
     chutes = chutes.copy()    
     chutes['x'] = chutes['location'].apply(lambda location: location[0])
-    chutes['y'] = chutes['location'].apply(
-        lambda location: location[1]
-)
+    chutes['y'] = chutes['location'].apply(lambda location: location[1])
     return chutes
 
 def preparar_passes(passes):
